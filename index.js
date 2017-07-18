@@ -117,11 +117,12 @@ var exports = {
         }
         var saveInfo = readJSONFile(SAVED_PATH);
         var confMap = readJSONFile(CONF_MAP);
-        console.log(confMap);
+        console.log(JSON.stringify(confMap, null, 4));
         rl.question('>>> which type of config file do you wish to create based on confMap.json?', answer => {
             var conf = confMap[answer];
             if (!conf) {
                 console.log('no such config file exits, exit')
+                rl.close();
                 return;
             }
             writeJSFile(saveInfo.path, conf, saveInfo.type);
