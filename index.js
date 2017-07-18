@@ -4,8 +4,9 @@ const FS = require('fs');
 const PROCESS = require( "process" );
 const READLINE = require('readline');
 const HTTP = require('http');
-var SAVED_PATH = PATH.join(__dirname, '.packConf/saveInfo');
-var CONF_MAP = PATH.join(__dirname, 'confMap.json');
+var ROOT_PATH = process.mainModule.paths[0].split('node_modules')[0].slice(0, -1);
+var SAVED_PATH = PATH.join(ROOT_PATH, '.packConf/saveInfo');
+var CONF_MAP = PATH.join(ROOT_PATH, 'confMap.json');
 
 let rl = READLINE.createInterface({
     input: PROCESS.stdin,
@@ -97,7 +98,7 @@ var exports = {
                     return;
                 }
                 rl.question('where do wish to save you conf file ?\n', path => {
-                    var fileWithPath = PATH.join(__dirname, path);
+                    var fileWithPath = PATH.join(ROOT_PATH, path);
 
                     rl.question('cmd or es6 import? cmd/es6\n', answer => {
                         writeJSFile(fileWithPath, confMap['env1'], answer);
@@ -116,6 +117,7 @@ var exports = {
         }
         var saveInfo = readJSONFile(SAVED_PATH);
         var confMap = readJSONFile(CONF_MAP);
+        console.log(confMap);
         rl.question('>>> which type of config file do you wish to create based on confMap.json?', answer => {
             var conf = confMap[answer];
             if (!conf) {
