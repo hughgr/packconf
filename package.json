@@ -6,6 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+  	"packinit": "bin/init.js",
+  	"packrun": "bin/run.js"
+  },
   "author": "老舍",
   "license": "MIT"
 }

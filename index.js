@@ -4,10 +4,8 @@ const FS = require('fs');
 const PROCESS = require( "process" );
 const READLINE = require('readline');
 const HTTP = require('http');
-var countDown = 5;
-var config;
-var env;
-var BUILD_PATH,CONFIG_PATH,configFile;
+var SAVED_PATH = PATH.join(__dirname, '.packConf/saveInfo');
+var CONF_MAP = PATH.join(__dirname, 'confMap.json');
 
 let rl = READLINE.createInterface({
     input: PROCESS.stdin,
@@ -56,13 +54,21 @@ function writeFile (path, jsonFile, isJSON = true) {
     ensureDirectoryExistence(path);
     FS.writeFileSync(path, isJSON ? JSON.stringify(jsonFile,null,4).replace(/\\\\/g,'/'): jsonFile);
 }
-function writeConfigFile () {
-    config.files = {};
-    writeFile(CONFIG_PATH, configFile);
-    console.log('>>> 结束，offline-config.json的版本号加一升级');
-}
-function parseJSON (jsonFile) {
+function stringifyJSON (jsonFile) {
    return JSON.stringify(jsonFile,null,4).replace(/\\\\/g,'/') 
+}
+
+function readJSONFile (file) {
+    return JSON.parse(FS.readFileSync(file, 'utf8'));
+}
+
+function writeJSFile (fileWithPath, json, type) {
+    if (type === 'es6') {
+        writeFile(fileWithPath, 'export default ' + stringifyJSON(json), false);        
+    } else {
+        writeFile(fileWithPath, 'module.exports = ' + stringifyJSON(json), false);
+    }
+
 }
 var exports = {
     initConf () {
@@ -74,33 +80,28 @@ var exports = {
                     "param": 1
                 },
                 "env2": {
-                    "param": 1
+                    "param": 2
                 },
                 "env3": {
-                    "param": 1
+                    "param": 3
                 },
             };
             console.log('================================================\n', JSON.stringify(confMap, null, 4));
             rl.question('does it looks good to you? yes/no\n', answer => {
                 if (answer === 'yes') {
-                    writeFile(PATH.join(__dirname, 'confMap.json'), confMap);
+                    writeFile(CONF_MAP, confMap);
                     console.log('confMap.json file success created!');
                 } else {
                     console.log('exit. please reinit');
                     rl.close();
                     return;
                 }
-                rl.question('where do wish to save you conf file ?', path => {
+                rl.question('where do wish to save you conf file ?\n', path => {
                     var fileWithPath = PATH.join(__dirname, path);
-                    var savedPath = PATH.join(__dirname, '.packConf/saveInfo');
 
-                    writeFile(savedPath, fileWithPath);
-                    rl.question('cmd or es6 import? cmd/es6', answer => {
-                        if (answer === 'es6') {
-                            writeFile(fileWithPath, 'exports default' + parseJSON(confMap['env1']));        
-                        } else {
-                            writeFile(fileWithPath, 'module.exports = ' + parseJSON(confMap['env1']));
-                        }
+                    rl.question('cmd or es6 import? cmd/es6\n', answer => {
+                        writeJSFile(fileWithPath, confMap['env1'], answer);
+                        writeFile(SAVED_PATH, {path: fileWithPath, type: answer});
                         rl.close();
                     })
                 });
@@ -108,55 +109,26 @@ var exports = {
         });
     },
     run () {
-        BUILD_PATH = PATH.resolve('./build');
-        CONFIG_PATH = PATH.resolve('./offline-config.json');
-        configFile = JSON.parse(FS.readFileSync(CONFIG_PATH, 'utf8'));
-
-        rl.question('>>> 你想生成哪个环境对应的离线json文件？ qa, pre或者online\n', answer => {
-            if (['qa', 'pre', 'online'].indexOf(answer) === -1) {
-                console.log('>>> error input, close');
-                rl.close()
+        if (!FS.existsSync(SAVED_PATH)) {
+            console.log('you did NOT init confMap yet, exit')
+            rl.close();
+            return;
+        }
+        var saveInfo = readJSONFile(SAVED_PATH);
+        var confMap = readJSONFile(CONF_MAP);
+        rl.question('>>> which type of config file do you wish to create based on confMap.json?', answer => {
+            var conf = confMap[answer];
+            if (!conf) {
+                console.log('no such config file exits, exit')
                 return;
             }
-            env = answer;
-            config = configFile[answer];
-            //版本号升1
-            config.version++;
-            config.repo = configFile.gitRepoName;
-            recursiveGenerator(BUILD_PATH, config);
-            //console.log(recursiveReadFile(BUILD_PATH, ['config.json', 'folderInner']));
-            console.log(JSON.stringify(config, null, 4).replace(/\\\\/g,'/'));
-            rl.question('>>> config.json如上，是否继续生成？ yes/no\n', answer => {
-                if (answer === 'yes') {
-                    writeFile(BUILD_PATH + '/config.json', config);
-                    writeFile(BUILD_PATH + '/config-version.json', {version: config.version});
-                    console.log('>>> config.json已经生成');
-                    console.log('>>> config-version.json已经生成');
-                } else {
-                    rl.close();
-                    console.log('>>> 取消生成，offline-config.json的版本号没有升级');
-                    return;
-                }
-                rl.question('>>> 你希望继续发布吗？yes/no\n', answer => {
-                    if (env === 'online') {
-                        console.log('>>>>>> 线上发布请到jekins上进行 <<<<< ');
-                        writeConfigFile();
-                        rl.close();
-                        return;
-                    }
-                    if (answer === 'yes') {
-                        var fileList = recursiveReadFile(BUILD_PATH);
-                        publishFile(fileList);
-                    } else {
-                        console.log('>>>>>> 用户取消 <<<<< ');
-                        rl.close();
-                    }
-                });
-            });
+            writeJSFile(saveInfo.path, conf, saveInfo.type);
+            console.log('success');
+            rl.close();
         });
 
     }
 };
-//exports.run();
+
 module.exports = exports;
 
