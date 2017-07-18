@@ -1,0 +1,11 @@
+{
+  "name": "@fastweb/packconf",
+  "version": "1.0.0",
+  "description": "generate conf file base on different env",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "老舍",
+  "license": "MIT"
+}
