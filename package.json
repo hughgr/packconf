@@ -1,6 +1,6 @@
 {
   "name": "@fastweb/packconf",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "generate conf file base on different env",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "packinit": "bin/init.js",
     "packrun": "bin/run.js"
   },
-   "repository": {
+  "repository": {
     "type": "git",
     "url": "git@github.com:hughgr/packconf.git"
   },
