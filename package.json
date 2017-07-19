@@ -10,6 +10,10 @@
     "packinit": "bin/init.js",
     "packrun": "bin/run.js"
   },
+   "repository": {
+    "type": "git",
+    "url": "git@github.com:hughgr/packconf.git"
+  },
   "author": "老舍",
   "license": "MIT"
 }
