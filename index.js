@@ -102,7 +102,7 @@ var exports = {
 
                     rl.question('cmd or es6 import? cmd/es6\n', answer => {
                         writeJSFile(fileWithPath, confMap['env1'], answer);
-                        writeFile(SAVED_PATH, {path: fileWithPath, type: answer});
+                        writeFile(SAVED_PATH, {path: path, type: answer});
                         rl.close();
                     })
                 });
@@ -125,7 +125,7 @@ var exports = {
                 rl.close();
                 return;
             }
-            writeJSFile(saveInfo.path, conf, saveInfo.type);
+            writeJSFile(PATH.join(ROOT_PATH, saveInfo.path), conf, saveInfo.type);
             console.log('success');
             rl.close();
         });
