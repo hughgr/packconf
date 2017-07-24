@@ -38,10 +38,10 @@ packconf
 
       {
         "env1":{
-            "logo": "XXX管理系统",//普通json数据
-            "script":"require('../common.js')",//直接插入到生成的config文件内的js,生成的config文件内不包含script属性
-            "desc": "这是XXX管理系统的配置",//配置的简单描述,desc属性
-            "title":"{{document.title}}",//值为js代码,使用"{{}}"包裹
+            "logo": "XXX管理系统(普通json数据)",
+            "script":"require('../common.js')(直接插入到生成的config文件内的js,生成的config文件内不包含script属性)",
+            "desc": "这是XXX管理系统的配置(配置的简单描述,生成的config文件内不包含desc属性)",
+            "title":"{{document.title}}(值为js代码,使用'{{}}'包裹)",
         }
       }
 
