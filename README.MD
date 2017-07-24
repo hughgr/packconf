@@ -10,7 +10,7 @@ packconf
     you have to run packinit first. packinit generate a confMap.json in your root directory. which looks like below:
 
     ```javascript
-    
+
     {
       "env1": {
           "param": 1
@@ -30,3 +30,29 @@ packconf
 
     executing packrun will ask you which environment config file you'd like to generate. packConf will create the config file using the path you typed in the first place
 
+
+
+* confMap.json
+
+    ```json
+
+      {
+        "env1":{
+            "logo": "XXX管理系统",//普通json数据
+            "script":"require('../common.js')",//直接插入到生成的config文件内的js,生成的config文件内不包含script属性
+            "desc": "这是XXX管理系统的配置",//配置的简单描述,desc属性
+            "title":"{{document.title}}",//值为js代码,使用"{{}}"包裹
+        }
+      }
+
+    ```
+
+    生成配置 =>
+
+    ```javascript
+      require('../common.js');
+      export default{
+        "logo": "XXX管理系统",
+        "title":document.title
+      }
+    ```
